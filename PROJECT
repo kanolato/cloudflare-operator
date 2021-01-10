@@ -1,3 +1,7 @@
 domain: kanolato.dev
 repo: github.com/kanolato/cloudflare-operator
+resources:
+- group: cloudflare
+  kind: DNSRecord
+  version: v1alpha1
 version: "2"

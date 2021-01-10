@@ -1,0 +1,7 @@
+apiVersion: cloudflare.kanolato.dev/v1alpha1
+kind: DNSRecord
+metadata:
+  name: dnsrecord-sample
+spec:
+  # Add fields here
+  foo: bar
