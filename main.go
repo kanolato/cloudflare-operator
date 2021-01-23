@@ -17,7 +17,6 @@ limitations under the License.
 package main
 
 import (
-	"flag"
 	"os"
 
 	"k8s.io/apimachinery/pkg/runtime"
@@ -28,7 +27,10 @@ import (
 
 	cloudflarev1alpha1 "github.com/kanolato/cloudflare-operator/api/v1alpha1"
 	"github.com/kanolato/cloudflare-operator/controllers"
+
 	// +kubebuilder:scaffold:imports
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -44,21 +46,20 @@ func init() {
 }
 
 func main() {
-	var metricsAddr string
-	var enableLeaderElection bool
-	flag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
-	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false,
-		"Enable leader election for controller manager. "+
-			"Enabling this will ensure there is only one active controller manager.")
-	flag.Parse()
+	pflag.String("metrics-addr", ":8080", "The address where prometheus metrics will be exposed.")
+	pflag.Bool("enable-leader-election", false, "Enabling this will ensure there is only one active controller manager.")
+	pflag.String("cf-api-email", "", "Cloudflare API Email.")
+	pflag.String("cf-api-key", "", "Cloudflare API Key.")
+	pflag.Parse()
+	viper.BindPFlags(pflag.CommandLine)
 
 	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:             scheme,
-		MetricsBindAddress: metricsAddr,
+		MetricsBindAddress: viper.GetString("metrics-addr"),
 		Port:               9443,
-		LeaderElection:     enableLeaderElection,
+		LeaderElection:     viper.GetBool("enable-leader-election"),
 		LeaderElectionID:   "d13dca9e.kanolato.dev",
 	})
 	if err != nil {
